@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Handwriting capture example for Kam Soon</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/css/uikit.min.css" />
+	</head>
+	<body>
+		<div class="uk-section">
+			<div class="uk-container uk-container-large">
+				<div id="signature"></div>
+				<button class="uk-button uk-button-primary" id="sendSvg">Send SVG to printer</button>
+			</div>
+		</div>
+		<div class="uk-section">
+			<div class="uk-container uk-container-large">
+				<h2>What is sent to the printer</h2>
+				<!-- <div id="svgtest"></div> -->
+				<span id="printerInput"></span>
+			</div>
+		</div>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.16/js/uikit-icons.min.js"></script>
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+		<script src="jsignature/jSignature.min.js"></script>
+		<script>
+			$(document).ready(function() {
+				var $sigdiv = $("#signature");
+				$sigdiv.jSignature(); // inits the jSignature widget.
+
+				$("#sendSvg").on('click', function() {
+					var datapair = $sigdiv.jSignature("getData", "svg");
+					// var i = new Image();
+					// i.src = "data:" + datapair[0] + "," + datapair[1];
+					// $(i).appendTo('#svgtest'); // append the image (SVG) to DOM.
+					$.ajax({
+						url: 'http://httpbin.org/post',
+						type: 'POST',
+						//dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
+						data: {
+							printerInput: "data:" + datapair[0] + "," + datapair[1]
+						},
+						crossDomain: true
+					})
+					.done(function(response) {
+						console.log("success");
+						$("#printerInput").text(response.form.printerInput);
+					})
+					.fail(function(e) {
+						console.log("error: "+e);
+					});
+					
+					$sigdiv.jSignature("reset"); // clears the canvas and rerenders the decor on it.
+				});
+
+			});
+		</script>
+	</body>
+</html>
